@@ -43,7 +43,7 @@ class SignIn extends React.Component {
         return (
             <div>
                 <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
-                <text fontSize={0.1}>Please Sign in to start annotating:</text>
+                <text fontSize={0.1}>Please Sign in to start annotating</text>
             </div>
         );
     }
