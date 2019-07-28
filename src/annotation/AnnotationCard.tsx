@@ -5,6 +5,8 @@ import './Annotation.css';
 import arrayMove from 'array-move';
 // @ts-ignore
 import {SortableContainer, SortableElement} from "react-sortable-hoc";
+import firebase from 'firebase';
+
 
 const SortableItem = SortableElement(({value}: {value: string}) => <li>{value}</li>);
 
@@ -19,28 +21,34 @@ const SortableList = SortableContainer(({items, disabled}: {items: Array<string>
 });
 
 interface Props {
-    // annotationItem: AnnotationItem;
+    annotationItem: AnnotationItem;
 }
 interface State {
-    items: Array<string>;
+    relatedWords: Array<string>;
 }
 
 class AnnotationCard extends React.Component<Props, State> {
-    state = {
-        items: ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6'],
-    };
+
+    constructor(props: Props){
+        super(props);
+        this.state = {relatedWords: props.annotationItem.relatedWords};
+    }
+
     onSortEnd = ({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {
-        this.setState({
-            items: arrayMove(this.state.items, oldIndex, newIndex),
-        });
+        this.setState({relatedWords: arrayMove(this.state.relatedWords, oldIndex, newIndex)});
+    };
+
+    isDisabled = () => {
+        // Disable annotation if there is no currently signed in user
+        return !firebase.auth().currentUser;
     };
 
     render(): React.ReactElement {
         return (
             <div className="Card-container">
                 <Card className="Card">
-                    <text>Target word</text>
-                    <SortableList items={this.state.items} onSortEnd={this.onSortEnd} disabled={true} />
+                    <p>{this.props.annotationItem.targetWord}</p>
+                    <SortableList items={this.state.relatedWords} onSortEnd={this.onSortEnd} disabled={this.isDisabled()} />
                 </Card>
             </div>
         );

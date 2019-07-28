@@ -41,7 +41,7 @@ class App extends React.Component<Props, State> {
         return (
             <React.Fragment>
                 <header className="App-header">
-                    <text className="title">AG Annotate</text>
+                    <p className="title">AG Annotate</p>
 
                     {!this.state.currentUser ?
                         <div className="Sign-in-container"><SignIn/></div> :
