@@ -7,6 +7,7 @@ import firebase from 'firebase';
 import AnnotationCard from "./annotation/AnnotationCard";
 // @ts-ignore
 import { Responsive, WidthProvider} from 'react-grid-layout';
+import Directions from "./directions/Directions";
 
 interface Props {
 }
@@ -49,6 +50,8 @@ class App extends React.Component<Props, State> {
                         <div className="Sign-in-container"><SignIn/></div> :
                         <div className="Sign-out-container"><SignOut/></div>}
                 </header>
+
+                <Directions/>
 
                 <ResponsiveGridLayout
                     className="Annotation-grid-container"
