@@ -16,7 +16,6 @@ interface State {
 class Annotation extends React.Component<Props, State> {
     state = {annotationItems: []};
 
-
     componentDidMount(): void {
         this.setState({annotationItems: [
                 {targetWord: "yo", relatedWords: ["b", "i", "kct"]},
@@ -47,7 +46,7 @@ class Annotation extends React.Component<Props, State> {
                     return(
                         <div key={index.toString()}
                              data-grid={{x: index % columns, y: Math.floor(index / columns), w: 1, h: 1, static: true}}>
-                            <AnnotationCard annotationItem={item}/>
+                            <AnnotationCard annotationItem={item} isAlreadyAnnotated={false}/>
                         </div>
                     )
                 })}

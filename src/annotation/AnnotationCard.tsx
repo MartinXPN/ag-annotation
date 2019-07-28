@@ -3,9 +3,12 @@ import AnnotationItem from "../entities/AnnotationItem";
 import Card from 'react-bootstrap/Card'
 import './Annotation.css';
 import arrayMove from 'array-move';
+import firebase from 'firebase';
+import {Button} from "react-bootstrap";
 // @ts-ignore
 import {SortableContainer, SortableElement} from "react-sortable-hoc";
-import firebase from 'firebase';
+// @ts-ignore
+import _ from 'lodash';
 
 
 const SortableItem = SortableElement(({value}: {value: string}) => <li className="list-item">{value}</li>);
@@ -21,6 +24,7 @@ const SortableList = SortableContainer(({items, disabled}: {items: Array<string>
 });
 
 interface Props {
+    isAlreadyAnnotated: boolean;
     annotationItem: AnnotationItem;
 }
 interface State {
@@ -43,11 +47,21 @@ class AnnotationCard extends React.Component<Props, State> {
         return !firebase.auth().currentUser;
     };
 
+    isModified = () => {
+        return !_.isEqual(this.props.annotationItem.relatedWords, this.state.relatedWords);
+    };
+
+    saveChanges = () => {
+    };
+
     render(): React.ReactElement {
         return (
             <Card className="Card">
                 <p>{this.props.annotationItem.targetWord}</p>
                 <SortableList items={this.state.relatedWords} onSortEnd={this.onSortEnd} disabled={this.isDisabled()} />
+                {this.isModified() &&
+                    <Button className="save-button" onClick={this.saveChanges} variant="outline-primary" size="sm">Save</Button>
+                }
             </Card>
         );
     }

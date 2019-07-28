@@ -10,6 +10,13 @@
     width: auto;
 }
 
+.save-button {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 0.5em;
+}
+
 .list-item {
     width: 100%;
 }
