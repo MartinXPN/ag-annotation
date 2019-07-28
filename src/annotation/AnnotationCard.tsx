@@ -3,8 +3,8 @@ import AnnotationItem from "../entities/AnnotationItem";
 import Card from 'react-bootstrap/Card'
 import './Annotation.css';
 import arrayMove from 'array-move';
-import firebase from 'firebase';
 import {Button} from "react-bootstrap";
+import {getCurrentUser} from "../api/AuthService";
 import {saveAnnotation} from '../api/AnnotationService';
 // @ts-ignore
 import {SortableContainer, SortableElement} from "react-sortable-hoc";
@@ -50,12 +50,12 @@ class AnnotationCard extends React.Component<Props, State> {
 
     isDisabled = () => {
         // Disable annotation if there is no currently signed in user
-        return !firebase.auth().currentUser;
+        return !getCurrentUser();
     };
 
     saveChanges = async () => {
         // @ts-ignore
-        await saveAnnotation(firebase.auth().currentUser, {
+        await saveAnnotation(getCurrentUser(), {
             targetWord: this.props.annotationItem.targetWord,
             relatedWords: this.state.relatedWords
         });
@@ -65,7 +65,7 @@ class AnnotationCard extends React.Component<Props, State> {
     render(): React.ReactElement {
         return (
             <Card className="Card">
-                <p>{this.props.annotationItem.targetWord}</p>
+                <p><b>{this.props.annotationItem.targetWord}</b></p>
                 <SortableList items={this.state.relatedWords} onSortEnd={this.onSortEnd} disabled={this.isDisabled()} />
                 {this.state.isModified &&
                     <Button className="save-button" onClick={this.saveChanges} variant="outline-primary" size="sm">Save</Button>
