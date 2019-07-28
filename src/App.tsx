@@ -49,7 +49,7 @@ class App extends React.Component<Props, State> {
                 </header>
 
                 <Directions/>
-                <Annotation/>
+                <Annotation currentUser={this.state.currentUser}/>
             </React.Fragment>
         );
     }

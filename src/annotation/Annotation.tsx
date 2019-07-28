@@ -4,7 +4,7 @@ import React from "react";
 import {Responsive, WidthProvider} from 'react-grid-layout';
 import AnnotationItem from "../entities/AnnotationItem";
 import {getAllCollection, getUserAnnotations} from '../api/AnnotationService';
-import {getCurrentUser} from "../api/AuthService";
+import {User} from "firebase";
 
 interface DisplayedAnnotation {
     item: AnnotationItem;
@@ -12,6 +12,7 @@ interface DisplayedAnnotation {
 }
 
 interface Props {
+    currentUser: User | null;
 }
 
 interface State {
@@ -23,15 +24,30 @@ class Annotation extends React.Component<Props, State> {
     state = {annotationItems: []};
 
     async componentDidMount() {
+        await this.fetchAnnotations();
+    }
+    async componentWillReceiveProps(nextProps: Readonly<Props>, nextContext: any) {
+        if(this.props.currentUser !== nextProps.currentUser)
+            await this.fetchAnnotations();
+    }
+
+    fetchAnnotations = async () => {
         const annotationCollection = await getAllCollection();
-        // @ts-ignore
-        let userAnnotations = await getUserAnnotations(getCurrentUser());
-        userAnnotations = new Set(userAnnotations.map((annotation: AnnotationItem) => annotation.targetWord));
+
+        if(this.props.currentUser === null ) {
+            this.setState({annotationItems: annotationCollection.map((annotation: AnnotationItem) => {
+                    return {item: annotation, isAlreadyAnnotated: false};
+                })});
+            return;
+        }
+
+        const userAnnotations = await getUserAnnotations(this.props.currentUser);
+        const annotatedTargetWords = new Set(userAnnotations.map((annotation: AnnotationItem) => annotation.targetWord));
 
         this.setState({annotationItems: annotationCollection.map((annotation: AnnotationItem) => {
-            return {item: annotation, isAlreadyAnnotated: userAnnotations.has(annotation.targetWord)}
-        })});
-    }
+                return {item: annotation, isAlreadyAnnotated: annotatedTargetWords.has(annotation.targetWord)}
+            })});
+    };
 
     render(): React.ReactElement {
         const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -48,7 +64,10 @@ class Annotation extends React.Component<Props, State> {
                     return(
                         <div key={index.toString()}
                              data-grid={{x: index % columns, y: Math.floor(index / columns), w: 1, h: 1, static: true}}>
-                            <AnnotationCard annotationItem={annotation.item} isAlreadyAnnotated={annotation.isAlreadyAnnotated}/>
+                            <AnnotationCard
+                                annotationItem={annotation.item}
+                                isAlreadyAnnotated={annotation.isAlreadyAnnotated}
+                                currentUser={this.props.currentUser}/>
                         </div>
                     )
                 })}

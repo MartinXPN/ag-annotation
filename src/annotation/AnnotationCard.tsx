@@ -4,10 +4,10 @@ import Card from 'react-bootstrap/Card'
 import './Annotation.css';
 import arrayMove from 'array-move';
 import {Button} from "react-bootstrap";
-import {getCurrentUser} from "../api/AuthService";
 import {saveAnnotation} from '../api/AnnotationService';
 // @ts-ignore
 import {SortableContainer, SortableElement} from "react-sortable-hoc";
+import {User} from "firebase";
 
 
 const SortableItem = SortableElement(({value}: {value: string}) => <li className="list-item">{value}</li>);
@@ -23,6 +23,7 @@ const SortableList = SortableContainer(({items, disabled}: {items: Array<string>
 });
 
 interface Props {
+    currentUser: User | null;
     isAlreadyAnnotated: boolean;
     annotationItem: AnnotationItem;
 }
@@ -59,12 +60,12 @@ class AnnotationCard extends React.Component<Props, State> {
 
     isDisabled = () => {
         // Disable annotation if there is no currently signed in user
-        return !getCurrentUser();
+        return !this.props.currentUser;
     };
 
     saveChanges = async () => {
         // @ts-ignore
-        await saveAnnotation(getCurrentUser(), {
+        await saveAnnotation(this.props.currentUser, {
             targetWord: this.props.annotationItem.targetWord,
             relatedWords: this.state.relatedWords
         });
