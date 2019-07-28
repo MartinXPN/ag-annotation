@@ -5,10 +5,9 @@ import './Annotation.css';
 import arrayMove from 'array-move';
 import firebase from 'firebase';
 import {Button} from "react-bootstrap";
+import {saveAnnotation} from '../api/AnnotationService';
 // @ts-ignore
 import {SortableContainer, SortableElement} from "react-sortable-hoc";
-// @ts-ignore
-import _ from 'lodash';
 
 
 const SortableItem = SortableElement(({value}: {value: string}) => <li className="list-item">{value}</li>);
@@ -29,17 +28,24 @@ interface Props {
 }
 interface State {
     relatedWords: Array<string>;
+    isModified: boolean;
 }
 
 class AnnotationCard extends React.Component<Props, State> {
 
     constructor(props: Props){
         super(props);
-        this.state = {relatedWords: props.annotationItem.relatedWords};
+        this.state = {
+            relatedWords: props.annotationItem.relatedWords,
+            isModified: false,
+        };
     }
 
     onSortEnd = ({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {
-        this.setState({relatedWords: arrayMove(this.state.relatedWords, oldIndex, newIndex)});
+        this.setState({
+            relatedWords: arrayMove(this.state.relatedWords, oldIndex, newIndex),
+            isModified: true,
+        });
     };
 
     isDisabled = () => {
@@ -47,11 +53,13 @@ class AnnotationCard extends React.Component<Props, State> {
         return !firebase.auth().currentUser;
     };
 
-    isModified = () => {
-        return !_.isEqual(this.props.annotationItem.relatedWords, this.state.relatedWords);
-    };
-
-    saveChanges = () => {
+    saveChanges = async () => {
+        // @ts-ignore
+        await saveAnnotation(firebase.auth().currentUser, {
+            targetWord: this.props.annotationItem.targetWord,
+            relatedWords: this.state.relatedWords
+        });
+        this.setState({isModified: false});
     };
 
     render(): React.ReactElement {
@@ -59,7 +67,7 @@ class AnnotationCard extends React.Component<Props, State> {
             <Card className="Card">
                 <p>{this.props.annotationItem.targetWord}</p>
                 <SortableList items={this.state.relatedWords} onSortEnd={this.onSortEnd} disabled={this.isDisabled()} />
-                {this.isModified() &&
+                {this.state.isModified &&
                     <Button className="save-button" onClick={this.saveChanges} variant="outline-primary" size="sm">Save</Button>
                 }
             </Card>

@@ -3,7 +3,7 @@ import React from "react";
 // @ts-ignore
 import {Responsive, WidthProvider} from 'react-grid-layout';
 import AnnotationItem from "../entities/AnnotationItem";
-import firebase from 'firebase';
+import {getAllCollection} from '../api/AnnotationService';
 
 interface Props {
 }
@@ -16,14 +16,9 @@ interface State {
 class Annotation extends React.Component<Props, State> {
     state = {annotationItems: []};
 
-    componentDidMount(): void {
-        firebase.database().ref('collection').on('value', (snapshot) => {
-            let annotationCollection: Array<AnnotationItem> = [];
-            snapshot.forEach((childSnapshot) => {
-                annotationCollection.push(childSnapshot.val());
-            });
-            this.setState({annotationItems: annotationCollection});
-        });
+    async componentDidMount() {
+        const annotationCollection = await getAllCollection();
+        this.setState({annotationItems: annotationCollection});
     }
 
     render(): React.ReactElement {
