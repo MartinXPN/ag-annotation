@@ -42,11 +42,18 @@ class Annotation extends React.Component<Props, State> {
         }
 
         const userAnnotations = await getUserAnnotations(this.props.currentUser);
-        const annotatedTargetWords = new Set(userAnnotations.map((annotation: AnnotationItem) => annotation.targetWord));
+        const annotatedTargetWords: Map<string, AnnotationItem> = new Map();
+        userAnnotations.forEach((annotation: AnnotationItem) => {
+            annotatedTargetWords.set(annotation.targetWord, annotation);
+        });
 
         this.setState({annotationItems: annotationCollection.map((annotation: AnnotationItem) => {
-                return {item: annotation, isAlreadyAnnotated: annotatedTargetWords.has(annotation.targetWord)}
-            })});
+            const targetWord: string = annotation.targetWord;
+            const isAnnotated: boolean = annotatedTargetWords.has(targetWord);
+            // @ts-ignore
+            const item: AnnotationItem = isAnnotated ? annotatedTargetWords.get(targetWord) : annotation;
+            return {item: item, isAlreadyAnnotated: isAnnotated}
+        })});
     };
 
     render(): React.ReactElement {
