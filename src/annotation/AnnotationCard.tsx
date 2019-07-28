@@ -29,6 +29,7 @@ interface Props {
 interface State {
     relatedWords: Array<string>;
     isModified: boolean;
+    isAlreadyAnnotated: boolean;
 }
 
 class AnnotationCard extends React.Component<Props, State> {
@@ -38,6 +39,7 @@ class AnnotationCard extends React.Component<Props, State> {
         this.state = {
             relatedWords: props.annotationItem.relatedWords,
             isModified: false,
+            isAlreadyAnnotated: props.isAlreadyAnnotated,
         };
     }
 
@@ -66,13 +68,16 @@ class AnnotationCard extends React.Component<Props, State> {
             targetWord: this.props.annotationItem.targetWord,
             relatedWords: this.state.relatedWords
         });
-        this.setState({isModified: false});
+        this.setState({
+            isModified: false,
+            isAlreadyAnnotated: true,
+        });
     };
 
     render(): React.ReactElement {
         return (
             <Card className="Card">
-                <p><b style={this.props.isAlreadyAnnotated ? { color: 'green' }: {color: 'black'}}>
+                <p><b style={this.state.isAlreadyAnnotated ? { color: 'green' }: {color: 'black'}}>
                     {this.props.annotationItem.targetWord}
                 </b></p>
                 <SortableList items={this.state.relatedWords} onSortEnd={this.onSortEnd} disabled={this.isDisabled()} />

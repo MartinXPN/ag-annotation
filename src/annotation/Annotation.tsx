@@ -3,7 +3,7 @@ import React from "react";
 // @ts-ignore
 import {Responsive, WidthProvider} from 'react-grid-layout';
 import AnnotationItem from "../entities/AnnotationItem";
-import {getAllCollection, listenToUserAnnotations} from '../api/AnnotationService';
+import {getAllCollection, getUserAnnotations} from '../api/AnnotationService';
 import {getCurrentUser} from "../api/AuthService";
 
 interface DisplayedAnnotation {
@@ -24,18 +24,13 @@ class Annotation extends React.Component<Props, State> {
 
     async componentDidMount() {
         const annotationCollection = await getAllCollection();
-        const annotatedTargetWords = new Set();
-
         // @ts-ignore
-        listenToUserAnnotations(getCurrentUser(), (annotations: Array<AnnotationItem>) => {
-            annotations.forEach(annotation => {
-                annotatedTargetWords.add(annotation.targetWord);
-            });
+        let userAnnotations = await getUserAnnotations(getCurrentUser());
+        userAnnotations = new Set(userAnnotations.map((annotation: AnnotationItem) => annotation.targetWord));
 
-            this.setState({annotationItems: annotationCollection.map((annotation: AnnotationItem) => {
-                    return {item: annotation, isAlreadyAnnotated: annotatedTargetWords.has(annotation.targetWord)}
-                })});
-        });
+        this.setState({annotationItems: annotationCollection.map((annotation: AnnotationItem) => {
+            return {item: annotation, isAlreadyAnnotated: userAnnotations.has(annotation.targetWord)}
+        })});
     }
 
     render(): React.ReactElement {
