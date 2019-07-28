@@ -3,13 +3,19 @@ import React from "react";
 // @ts-ignore
 import {Responsive, WidthProvider} from 'react-grid-layout';
 import AnnotationItem from "../entities/AnnotationItem";
-import {getAllCollection} from '../api/AnnotationService';
+import {getAllCollection, listenToUserAnnotations} from '../api/AnnotationService';
+import {getCurrentUser} from "../api/AuthService";
+
+interface DisplayedAnnotation {
+    item: AnnotationItem;
+    isAlreadyAnnotated: boolean;
+}
 
 interface Props {
 }
 
 interface State {
-    annotationItems: Array<AnnotationItem>,
+    annotationItems: Array<DisplayedAnnotation>;
 }
 
 
@@ -18,7 +24,18 @@ class Annotation extends React.Component<Props, State> {
 
     async componentDidMount() {
         const annotationCollection = await getAllCollection();
-        this.setState({annotationItems: annotationCollection});
+        const annotatedTargetWords = new Set();
+
+        // @ts-ignore
+        listenToUserAnnotations(getCurrentUser(), (annotations: Array<AnnotationItem>) => {
+            annotations.forEach(annotation => {
+                annotatedTargetWords.add(annotation.targetWord);
+            });
+
+            this.setState({annotationItems: annotationCollection.map((annotation: AnnotationItem) => {
+                    return {item: annotation, isAlreadyAnnotated: annotatedTargetWords.has(annotation.targetWord)}
+                })});
+        });
     }
 
     render(): React.ReactElement {
@@ -32,11 +49,11 @@ class Annotation extends React.Component<Props, State> {
                 margin={[8, 80]}
                 autoSize={true}>
 
-                {this.state.annotationItems.map((item: AnnotationItem, index: number) => {
+                {this.state.annotationItems.map((annotation: DisplayedAnnotation, index: number) => {
                     return(
                         <div key={index.toString()}
                              data-grid={{x: index % columns, y: Math.floor(index / columns), w: 1, h: 1, static: true}}>
-                            <AnnotationCard annotationItem={item} isAlreadyAnnotated={false}/>
+                            <AnnotationCard annotationItem={annotation.item} isAlreadyAnnotated={annotation.isAlreadyAnnotated}/>
                         </div>
                     )
                 })}

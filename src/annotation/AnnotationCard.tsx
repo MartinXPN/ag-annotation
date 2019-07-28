@@ -41,6 +41,13 @@ class AnnotationCard extends React.Component<Props, State> {
         };
     }
 
+
+    componentWillReceiveProps(nextProps: Readonly<Props>, nextContext: any): void {
+        this.setState({
+            relatedWords: nextProps.annotationItem.relatedWords,
+        });
+    }
+
     onSortEnd = ({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {
         this.setState({
             relatedWords: arrayMove(this.state.relatedWords, oldIndex, newIndex),
@@ -65,7 +72,9 @@ class AnnotationCard extends React.Component<Props, State> {
     render(): React.ReactElement {
         return (
             <Card className="Card">
-                <p><b>{this.props.annotationItem.targetWord}</b></p>
+                <p><b style={this.props.isAlreadyAnnotated ? { color: 'green' }: {color: 'black'}}>
+                    {this.props.annotationItem.targetWord}
+                </b></p>
                 <SortableList items={this.state.relatedWords} onSortEnd={this.onSortEnd} disabled={this.isDisabled()} />
                 {this.state.isModified &&
                     <Button className="save-button" onClick={this.saveChanges} variant="outline-primary" size="sm">Save</Button>
