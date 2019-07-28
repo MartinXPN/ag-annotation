@@ -11,18 +11,6 @@ import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
 import 'firebaseui';
 
-// Configure Firebase.
-const firebaseConfig = {
-    apiKey: "AIzaSyAx-fyzlGmKnAkfFQzS8jbab97b6nIdCH8",
-    authDomain: "ag-annotate.firebaseapp.com",
-    databaseURL: "https://ag-annotate.firebaseio.com",
-    projectId: "ag-annotate",
-    storageBucket: "",
-    messagingSenderId: "402839714124",
-    appId: "1:402839714124:web:4487a53e308a25db"
-};
-firebase.initializeApp(firebaseConfig);
-
 // Configure FirebaseUI.
 const uiConfig: firebaseui.auth.Config = {
     // Popup signin flow rather than redirect flow.

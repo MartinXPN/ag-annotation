@@ -3,7 +3,7 @@ import React from "react";
 // @ts-ignore
 import {Responsive, WidthProvider} from 'react-grid-layout';
 import AnnotationItem from "../entities/AnnotationItem";
-
+import firebase from 'firebase';
 
 interface Props {
 }
@@ -17,17 +17,13 @@ class Annotation extends React.Component<Props, State> {
     state = {annotationItems: []};
 
     componentDidMount(): void {
-        this.setState({annotationItems: [
-                {targetWord: "yo", relatedWords: ["b", "i", "kct"]},
-                {targetWord: "yo", relatedWords: ["b", "i", "kct"]},
-                {targetWord: "yo", relatedWords: ["b", "i", "kct"]},
-                {targetWord: "yo", relatedWords: ["b", "i", "kct", "dsfasdfasdfs", "dfas", "asdfsd", "sdfasd"]},
-                {targetWord: "yo", relatedWords: ["b", "i", "kct"]},
-                {targetWord: "yo", relatedWords: ["b", "i", "kct"]},
-                {targetWord: "yo", relatedWords: ["b", "i", "kct"]},
-                {targetWord: "yo", relatedWords: ["b", "i", "kct"]},
-                {targetWord: "yo", relatedWords: ["b", "i", "kct"]},
-            ]})
+        firebase.database().ref('collection').on('value', (snapshot) => {
+            let annotationCollection: Array<AnnotationItem> = [];
+            snapshot.forEach((childSnapshot) => {
+                annotationCollection.push(childSnapshot.val());
+            });
+            this.setState({annotationItems: annotationCollection});
+        });
     }
 
     render(): React.ReactElement {
@@ -42,7 +38,6 @@ class Annotation extends React.Component<Props, State> {
                 autoSize={true}>
 
                 {this.state.annotationItems.map((item: AnnotationItem, index: number) => {
-                    console.log({x: index % columns, y: Math.floor(index / columns)});
                     return(
                         <div key={index.toString()}
                              data-grid={{x: index % columns, y: Math.floor(index / columns), w: 1, h: 1, static: true}}>
